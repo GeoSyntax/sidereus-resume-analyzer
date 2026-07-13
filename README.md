@@ -45,6 +45,7 @@ GitHub 仓库：https://github.com/GeoSyntax/sidereus-resume-analyzer
 │   │       └── cache.py             # Redis/内存缓存
 │   ├── tests/
 │   ├── requirements.txt
+│   ├── requirements-prod.txt
 │   ├── Dockerfile
 │   └── bootstrap                   # 阿里云 FC 自定义运行时启动脚本
 ├── frontend/
@@ -55,7 +56,11 @@ GitHub 仓库：https://github.com/GeoSyntax/sidereus-resume-analyzer
 │   └── s.yaml                      # Serverless Devs / 阿里云 FC 配置
 ├── docs/
 │   ├── EVALUATION_MAPPING.md       # 评分标准映射
-│   └── INTERVIEW_PREP.md           # 技术面试准备
+│   ├── INTERVIEW_PREP.md           # 技术面试准备
+│   └── BACKEND_DEPLOYMENT.md       # 后端部署到阿里云 FC
+├── scripts/
+│   ├── build_fc_package.ps1        # Windows 构建 FC 部署包
+│   └── build_fc_package.sh         # Linux/macOS 构建 FC 部署包
 ├── DESIGN.md
 └── README.md
 ```
@@ -169,6 +174,7 @@ GitHub Actions 会在 push 和 pull request 时自动运行后端测试。
 
 - `docs/EVALUATION_MAPPING.md`：逐项对应评分标准，说明项目覆盖情况。
 - `docs/INTERVIEW_PREP.md`：一轮/二轮技术面试讲解路线、常见追问和扩展方案。
+- `docs/BACKEND_DEPLOYMENT.md`：阿里云 FC 后端部署步骤、GitHub Actions 部署和常见问题。
 - `DESIGN.md`：设计目标、非目标、技术决策、缓存、安全和限制。
 
 前端线上页面提供“加载示例”按钮，即使后端公网地址暂未部署，也可以让评审看到完整交互和结果展示。真实解析仍需要连接后端 API。

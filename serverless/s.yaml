@@ -13,7 +13,7 @@ resources:
       region: ${vars.region}
       functionName: ${vars.functionName}
       runtime: custom.debian10
-      code: ../backend
+      code: ../dist/fc-backend
       handler: not-used
       timeout: 60
       memorySize: 512
@@ -22,7 +22,7 @@ resources:
         APP_ENV: production
         MAX_UPLOAD_MB: "8"
         CACHE_TTL_SECONDS: "86400"
-        CORS_ORIGINS: "*"
+        CORS_ORIGINS: "https://geosyntax.github.io,http://localhost:5173,http://127.0.0.1:5173"
         OPENAI_BASE_URL: https://api.openai.com/v1
         OPENAI_MODEL: gpt-4o-mini
       triggers:
@@ -36,4 +36,3 @@ resources:
               - GET
               - POST
               - OPTIONS
-

@@ -1,0 +1,44 @@
+name: Deploy backend to Aliyun FC
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Serverless Devs
+        run: npm install -g @serverless-devs/s
+
+      - name: Build FC package
+        run: bash scripts/build_fc_package.sh
+
+      - name: Configure Aliyun account
+        run: |
+          s config add \
+            --AccountID "${{ secrets.ALIYUN_ACCOUNT_ID }}" \
+            --AccessKeyID "${{ secrets.ALIYUN_ACCESS_KEY_ID }}" \
+            --AccessKeySecret "${{ secrets.ALIYUN_ACCESS_KEY_SECRET }}" \
+            -a default \
+            -f
+
+      - name: Deploy
+        working-directory: serverless
+        run: s deploy -y
+

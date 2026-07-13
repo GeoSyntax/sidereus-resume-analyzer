@@ -28,9 +28,11 @@
 
 - README 包含架构、技术选型、运行、部署、API 和提交信息模板。
 - `DESIGN.md` 记录目标、非目标、架构、缓存、AI 安全和已知风险。
+- `docs/BACKEND_DEPLOYMENT.md` 记录阿里云 FC 部署、GitHub Actions 部署和排错步骤。
 - GitHub Actions：
   - `Backend CI`：安装依赖并运行测试。
   - `Deploy frontend to GitHub Pages`：发布 `frontend/`。
+  - `Deploy backend to Aliyun FC`：手动触发后端部署，需要配置阿里云 Secrets。
 - RESTful 路径使用 `/api/v1` 版本前缀。
 - 错误响应统一为 `{"error": {"code", "message", "details"}}`。
 - 响应头包含 `X-Request-ID` 与 `X-Process-Time-Ms`，便于定位问题。
@@ -60,4 +62,3 @@
 - 扫描版 PDF 需要 OCR，当前只处理可复制文本 PDF。
 - 规则词表有限，生产环境应引入可配置词表或向量检索。
 - 在线 GitHub Pages 只托管前端，完整线上演示还需部署后端 API 到阿里云 FC。
-
