@@ -29,6 +29,8 @@ resources:
         # base_url and model are not secrets, so they are safe to commit.
         OPENAI_BASE_URL: https://token-plan-sgp.xiaomimimo.com/v1
         OPENAI_MODEL: mimo-v2.5-pro
+        # Vision-capable model for OCR of scanned PDFs (not a secret).
+        OPENAI_VISION_MODEL: mimo-v2.5
         # OPENAI_API_KEY is a secret: injected from the local env at deploy time, never committed.
         OPENAI_API_KEY: ${env('OPENAI_API_KEY')}
       triggers:
