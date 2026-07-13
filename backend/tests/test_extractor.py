@@ -37,3 +37,14 @@ def test_rule_extractor_gets_required_fields():
     assert "FastAPI" in profile.skills
     assert profile.background.projects
 
+
+def test_project_title_is_not_repeated_in_description():
+    """The project title must be a short name, not the full first line, and the
+    description must not simply restate the title (the pre-fix redundancy)."""
+    profile = extract_by_rules(SAMPLE_RESUME)
+
+    project = profile.background.projects[0]
+    assert project.name == "智能简历分析系统"
+    assert not project.description.startswith(project.name)
+    assert "FastAPI" in project.description
+

@@ -13,9 +13,45 @@ GitHub 仓库：https://github.com/GeoSyntax/sidereus-resume-analyzer
 
 前端页面在 GitHub Pages 域名下会自动指向该后端地址，评审无需手动配置即可上传 PDF 验收。
 
+## 界面预览
+
+![简历解析与岗位匹配结果](docs/images/demo-analyze.png)
+
+一次分析同时给出：综合匹配分与技能/经验/学历三维子分、候选人结构化信息、项目经历、岗位关键词的「已匹配 / 待确认」证据、筛选建议，以及可复核的解析原文与结果 JSON。
+
+## 使用方法
+
+### 线上验收（推荐）
+
+1. 打开前端演示地址：<https://geosyntax.github.io/sidereus-resume-analyzer/>。页面右上角的 API Base 已自动指向线上阿里云 FC 后端，无需手动填写；顶部状态栏会显示「API 正常」和已启用的能力（LLM / OCR / 缓存类型）。
+2. 在左侧「简历文件」区域拖入或点击选择一个 PDF 简历（单个文件，≤ 8 MB）。
+3. 在「岗位需求」文本框粘贴岗位描述；也可点击「填入示例 JD」快速载入一份示例。
+4. 点击操作按钮：
+   - **解析并匹配**：解析简历并与岗位需求计算匹配度（完整流程）。
+   - **只解析简历**：仅做解析与关键信息抽取，不做岗位匹配。
+   - **加载示例**：无需后端即可查看一份示例结果，了解结果结构。
+5. 查看右侧结果：综合匹配分、技能/经验/学历三维子分、候选人信息、项目经历、关键词证据（岗位关键词 / 已匹配 / 待确认）、筛选建议。点击「复制结果 JSON」可导出结构化结果。
+
+> 说明：线上后端为按量付费的 Serverless 实例，首次请求可能有几秒冷启动；启用 LLM 时单次分析约 10 余秒属正常。
+
+### 命令行快速验证
+
+```bash
+# 健康检查
+curl https://resume-yzer-api-qfiqdkwrkd.cn-hangzhou.fcapp.run/health
+
+# 无状态一次完成：解析 + 匹配（multipart form）
+curl -X POST https://resume-yzer-api-qfiqdkwrkd.cn-hangzhou.fcapp.run/api/v1/analyze \
+  -F "file=@your_resume.pdf;type=application/pdf" \
+  -F "job_description=Python 后端实习生，熟悉 FastAPI、Redis、Docker、RESTful API，本科。"
+```
+
+返回 JSON 同时包含 `resume`（解析与抽取结果）与 `match`（匹配评分，未提供 `job_description` 时为 `null`）。
+
 ## 功能
 
 - 上传单个 PDF 简历，解析多页文本并清洗分段
+- 扫描件（无文本层）自动回退到视觉模型 OCR；未配置视觉模型时返回明确的 422 提示
 - 抽取姓名、电话、邮箱、地址等必选字段
 - 抽取求职意向、期望薪资、工作年限、学历、项目经历和技能关键词
 - 根据岗位描述提取关键词并计算匹配度评分
@@ -119,6 +155,18 @@ REDIS_URL=
 ```http
 GET /health
 ```
+
+### 一次完成解析与匹配（无状态，推荐）
+
+```http
+POST /api/v1/analyze
+Content-Type: multipart/form-data
+
+file=<resume.pdf>
+job_description=<可选，岗位描述文本>
+```
+
+单次请求内完成「解析 + 抽取 +（可选）匹配」，不依赖服务端会话状态，适配 Serverless 多实例。返回 JSON 同时包含 `resume` 与 `match`（未提供 `job_description` 时 `match` 为 `null`）。前端线上主流程即调用此接口。
 
 ### 上传并解析简历
 
@@ -226,8 +274,8 @@ s deploy
 
 ## 已知限制
 
-- 扫描版 PDF 暂未接入 OCR，当前仅支持可复制文本的 PDF。
-- 内存缓存适合本地和单实例演示，生产环境建议配置 Redis。
+- 扫描版 PDF 依赖视觉模型 OCR：未配置视觉模型时，无文本层的扫描件会返回明确的 422 提示，而非静默失败。
+- 内存缓存适合本地和单实例演示；Serverless 多实例/冷启动下内存缓存不跨实例，生产建议配置 Redis 获得持久缓存。
 - LLM 调用会发送简历文本到配置的模型服务，真实生产需要加入用户授权、脱敏和审计。
 
 ## 提交信息模板
