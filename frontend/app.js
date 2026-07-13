@@ -13,6 +13,7 @@ const elements = {
   jobMeta: document.querySelector("#jobMeta"),
   parseButton: document.querySelector("#parseButton"),
   matchButton: document.querySelector("#matchButton"),
+  demoButton: document.querySelector("#demoButton"),
   status: document.querySelector("#status"),
   overallScore: document.querySelector("#overallScore"),
   scoreMeter: document.querySelector("#scoreMeter"),
@@ -44,6 +45,10 @@ elements.job.addEventListener("input", renderJobMeta);
 
 elements.parseButton.addEventListener("click", async () => {
   await runParseOnly();
+});
+
+elements.demoButton.addEventListener("click", () => {
+  loadDemo();
 });
 
 elements.form.addEventListener("submit", async (event) => {
@@ -180,6 +185,14 @@ function renderMatch(match) {
   renderRunMeta(state.resume, match);
 }
 
+function loadDemo() {
+  state.resume = demoResume;
+  state.match = demoMatch;
+  renderResume(state.resume);
+  renderMatch(state.match);
+  setStatus("已加载公开演示数据；真实解析请连接后端 API 后上传 PDF。");
+}
+
 function resetMatch() {
   elements.overallScore.textContent = "--";
   elements.scoreMeter.style.width = "0";
@@ -287,3 +300,59 @@ function createTextElement(tagName, text) {
   return element;
 }
 
+const demoResume = {
+  resume_id: "demo-resume",
+  file_name: "sample_resume.pdf",
+  file_sha256: "demo",
+  page_count: 1,
+  cached: false,
+  cleaned_text:
+    "Zhang San\nPhone: 13800001234\nEmail: zhangsan@example.com\nAddress: Beijing Haidian District\nTarget Role: Python Backend Intern\nEducation: Peking University, Bachelor of Computer Science\n2 years of backend development experience.\nSkills: Python, FastAPI, Redis, Docker, React, SQL, Git, pytest, Serverless, Aliyun FC",
+  sections: [],
+  profile: {
+    basic_info: {
+      name: "Zhang San",
+      phone: "13800001234",
+      email: "zhangsan@example.com",
+      address: "Beijing Haidian District",
+    },
+    job_intention: {
+      target_role: "Python Backend Intern",
+      expected_salary: "150-200 RMB/day",
+    },
+    background: {
+      years_of_experience: 2,
+      education: ["Peking University, Bachelor of Computer Science"],
+      projects: [
+        {
+          name: "AI Resume Analyzer",
+          role: "Backend Developer",
+          description: "Built PDF parsing, keyword extraction, Redis cache, and job matching APIs.",
+          technologies: ["Python", "FastAPI", "Redis", "React"],
+        },
+      ],
+    },
+    skills: ["Aliyun FC", "Backend", "Docker", "FastAPI", "Python", "React", "Redis", "RESTful", "Serverless"],
+    summary: "2 years of experience; skills: Python, FastAPI, Redis, React",
+    extraction_method: "demo",
+  },
+};
+
+const demoMatch = {
+  resume_id: "demo-resume",
+  job_analysis: {
+    keywords: ["Python", "FastAPI", "Redis", "Docker", "React", "RESTful", "Serverless"],
+    required_skills: ["Python", "FastAPI", "Redis", "Docker", "React", "RESTful", "Serverless"],
+    seniority_hint: "junior",
+    education_hint: "本科",
+  },
+  overall_score: 86,
+  skill_score: 88,
+  experience_score: 90,
+  education_score: 80,
+  matched_keywords: ["Python", "FastAPI", "Redis", "Docker", "React", "RESTful", "Serverless"],
+  missing_keywords: ["函数计算"],
+  recommendations: ["技能覆盖度高，建议面试重点追问 Serverless 部署、PDF 解析边界和缓存失效策略。"],
+  scoring_method: "demo",
+  cached: false,
+};

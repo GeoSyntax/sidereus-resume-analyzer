@@ -46,8 +46,12 @@ class ParsedResume(BaseModel):
     cached: bool = False
 
 
-class JobMatchRequest(BaseModel):
+class JobAnalysisRequest(BaseModel):
     job_description: str = Field(..., min_length=10, max_length=12000)
+
+
+class JobMatchRequest(JobAnalysisRequest):
+    pass
 
 
 class JobAnalysis(BaseModel):
@@ -73,4 +77,3 @@ class MatchResult(BaseModel):
 
 class ErrorResponse(BaseModel):
     error: dict[str, object]
-

@@ -52,6 +52,7 @@ FastAPI REST API
 
 - `POST /api/v1/resumes`：创建简历解析结果。
 - `GET /api/v1/resumes/{resume_id}`：读取缓存中的解析结果。
+- `POST /api/v1/jobs/analyze`：独立分析岗位需求，返回关键词、学历和资历提示。
 - `POST /api/v1/resumes/{resume_id}/matches`：基于已解析简历创建岗位匹配结果。
 
 错误响应统一为：
@@ -86,9 +87,15 @@ FastAPI REST API
 - LLM 失败时回退到规则结果，不影响接口可用性。
 - README 明确说明生产环境需要用户授权、脱敏和审计。
 
+## 工程化与可观测性
+
+- GitHub Actions 负责后端测试和 GitHub Pages 前端部署。
+- 所有 HTTP 响应带 `X-Request-ID`，便于排查单次请求。
+- 所有 HTTP 响应带 `X-Process-Time-Ms`，便于观察接口耗时。
+- 校验错误统一返回结构化 JSON，便于前端展示和接口调试。
+
 ## 已知风险
 
 - PDF 解析依赖文本层，扫描件需要 OCR 扩展。
 - 关键词词表有限，后续可改为可配置词表或向量召回。
 - 当前评分权重是启发式规则，生产场景需要结合人工标注数据评估。
-
