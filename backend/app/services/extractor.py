@@ -188,12 +188,33 @@ def extract_projects(text: str) -> list[ProjectExperience]:
     for chunk in chunks:
         if len(chunk) < 20:
             continue
-        first_line = chunk.splitlines()[0][:50]
+        name, description = split_project_name(chunk)
         technologies = extract_keywords(chunk)
-        projects.append(ProjectExperience(name=first_line, description=chunk[:800], technologies=technologies))
+        projects.append(ProjectExperience(name=name, description=description, technologies=technologies))
         if len(projects) >= 5:
             break
     return projects
+
+
+def split_project_name(chunk: str) -> tuple[str, str]:
+    """Derive a short project title and a non-redundant description.
+
+    The title is the project name portion of the first line (before a
+    colon/dash separator). The description is the remaining detail after that
+    line, so the title text is not repeated at the start of the description.
+    """
+    lines = chunk.splitlines()
+    first_line = lines[0].strip()
+    # Drop a leading list marker like "1." / "1、" / "一、" left by chunk splitting.
+    first_line = re.sub(r"^[一二三四五六七八九十\d]+[、.．]\s*", "", first_line).strip()
+    title = re.split(r"[:：\-—]", first_line, maxsplit=1)[0].strip()[:50] or first_line[:50]
+
+    rest = "\n".join(lines[1:]).strip()
+    if not rest:
+        # Single-line chunk: keep the detail after the title separator, if any.
+        parts = re.split(r"[:：\-—]", first_line, maxsplit=1)
+        rest = parts[1].strip() if len(parts) > 1 else first_line
+    return title, rest[:800]
 
 
 def profile_from_dict(data: dict[str, Any]) -> ResumeProfile:

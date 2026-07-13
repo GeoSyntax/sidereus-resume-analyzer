@@ -57,19 +57,21 @@ TECH_KEYWORDS = {
     "前端": "Frontend",
     "全栈": "Full-stack",
     "函数计算": "Aliyun FC",
+    "云函数": "Aliyun FC",
     "阿里云": "Aliyun",
     "缓存": "Cache",
     "简历解析": "Resume Parsing",
 }
 
+# Chinese domain terms that have no English canonical form in TECH_KEYWORDS.
+# Terms that DO map to a canonical form (缓存→Cache, 云函数/函数计算→Aliyun FC)
+# are intentionally kept out of this list to avoid emitting both the raw Chinese
+# word and its normalized synonym for the same concept.
 CHINESE_KEYWORDS = [
     "后端开发",
     "全栈开发",
     "接口设计",
     "数据库",
-    "缓存",
-    "云函数",
-    "函数计算",
     "部署",
     "测试",
     "工程化",
