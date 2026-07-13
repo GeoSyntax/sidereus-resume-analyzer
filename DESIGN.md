@@ -50,10 +50,11 @@ FastAPI REST API
 
 资源路径采用 `/api/v1` 前缀：
 
-- `POST /api/v1/resumes`：创建简历解析结果。
+- `POST /api/v1/analyze`：**无状态主流程（前端默认）**，单次请求内完成简历解析 + 岗位匹配，`job_description` 可选（缺省时仅解析）。不依赖服务端会话状态，适配 Serverless 多实例。
+- `POST /api/v1/resumes`：创建简历解析结果（有状态两步流程的第一步，保留兼容）。
 - `GET /api/v1/resumes/{resume_id}`：读取缓存中的解析结果。
 - `POST /api/v1/jobs/analyze`：独立分析岗位需求，返回关键词、学历和资历提示。
-- `POST /api/v1/resumes/{resume_id}/matches`：基于已解析简历创建岗位匹配结果。
+- `POST /api/v1/resumes/{resume_id}/matches`：基于已解析简历创建岗位匹配结果（有状态两步流程的第二步）。
 
 错误响应统一为：
 
@@ -78,7 +79,8 @@ FastAPI REST API
 
 - 采用 cache-aside。
 - TTL 默认 86400 秒。
-- Redis 异常时自动降级为内存缓存。
+- 生产已接入 Redis（Upstash，TLS `rediss://`），缓存跨实例共享且持久；`/health` 的 `cache` 字段反映真实连接状态。
+- Redis 异常或未配置时自动降级为内存缓存，业务代码无感。
 
 ## AI 安全与可靠性
 
