@@ -46,12 +46,12 @@
 | 缓存设计 | Cache-aside，`resume:{sha256}` 避免重复 PDF 解析，`match:{resume_id}:{job_hash}` 避免重复评分 |
 | 性能 | PDF 解析结果按 SHA256 复用；匹配按 JD hash 复用；大文件限制默认 8 MB |
 | Serverless | FastAPI ASGI + custom runtime `bootstrap`，适配阿里云 FC HTTP 触发器 |
-| 可扩展 | 后续可替换 OCR、向量召回、可配置技能词表、异步任务队列 |
+| 可扩展 | 后续可增加向量召回、可配置技能词表、异步任务队列（OCR 已实现，见下） |
 
 ## 加分项 10%
 
 - 求职意向、期望薪资、工作年限、学历、项目经历抽取。
-- Redis 缓存可选。
+- Redis 缓存：生产已接入 Upstash（TLS `rediss://`），`/health` 反映真实连接状态；未配置时自动回退内存。
 - LLM 增强抽取与评分可选。
 - GitHub Pages 已部署。
 - 前端公开示例模式降低评审验收门槛。
