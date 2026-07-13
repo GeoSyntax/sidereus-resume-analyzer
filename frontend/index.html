@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Resume Analyzer</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div class="title-block">
+          <h1>Resume Analyzer</h1>
+          <p>PDF 简历解析与岗位匹配</p>
+        </div>
+        <div class="connection">
+          <label class="api-field">
+            <span>API Base</span>
+            <input id="apiBase" type="url" value="http://127.0.0.1:8000" autocomplete="off" />
+          </label>
+          <div id="apiState" class="connection-state">API 未检测</div>
+        </div>
+      </header>
+
+      <section class="workspace" aria-label="简历分析工作台">
+        <form id="analyzeForm" class="panel controls">
+          <div class="control-section">
+            <div class="section-title">简历文件</div>
+            <label class="field">
+              <span>上传 PDF</span>
+              <input id="resumeFile" type="file" accept="application/pdf,.pdf" required />
+            </label>
+            <div id="fileMeta" class="meta-line">尚未选择文件</div>
+          </div>
+
+          <div class="control-section">
+            <div class="section-title">岗位需求</div>
+            <label class="field">
+              <span>JD 文本</span>
+              <textarea
+                id="jobDescription"
+                rows="12"
+                required
+                placeholder="Python 后端/全栈实习生，熟悉 FastAPI、Redis、RESTful API，有 Serverless 或云部署经验..."
+              ></textarea>
+            </label>
+            <div id="jobMeta" class="meta-line">至少输入 10 个字符</div>
+          </div>
+
+          <div class="button-row">
+            <button id="parseButton" type="button">只解析简历</button>
+            <button id="matchButton" type="submit">解析并匹配</button>
+          </div>
+
+          <div id="status" class="status" role="status">等待上传</div>
+        </form>
+
+        <section class="results" aria-label="分析结果">
+          <article class="panel score-panel">
+            <div class="score-main">
+              <div class="score-label">综合匹配</div>
+              <div class="score-value">
+                <span id="overallScore">--</span>
+                <span class="score-unit">/100</span>
+              </div>
+              <div class="score-meter" aria-hidden="true">
+                <div id="scoreMeter"></div>
+              </div>
+              <div id="scoreVerdict" class="score-verdict">等待岗位匹配</div>
+            </div>
+
+            <div class="score-detail">
+              <div class="score-grid">
+                <div>
+                  <span id="skillScore">--</span>
+                  <p>技能匹配</p>
+                </div>
+                <div>
+                  <span id="experienceScore">--</span>
+                  <p>经验相关</p>
+                </div>
+                <div>
+                  <span id="educationScore">--</span>
+                  <p>学历匹配</p>
+                </div>
+              </div>
+              <dl id="runMeta" class="run-meta">
+                <dt>解析状态</dt>
+                <dd>未开始</dd>
+                <dt>评分方法</dt>
+                <dd>--</dd>
+                <dt>Resume ID</dt>
+                <dd>--</dd>
+              </dl>
+            </div>
+          </article>
+
+          <section class="result-grid">
+            <article class="panel">
+              <h2>候选人信息</h2>
+              <dl id="profileList" class="profile-list">
+                <dt>姓名</dt>
+                <dd>--</dd>
+                <dt>电话</dt>
+                <dd>--</dd>
+                <dt>邮箱</dt>
+                <dd>--</dd>
+                <dt>地址</dt>
+                <dd>--</dd>
+              </dl>
+            </article>
+
+            <article class="panel">
+              <h2>处理摘要</h2>
+              <dl id="resumeSummary" class="profile-list compact">
+                <dt>页数</dt>
+                <dd>--</dd>
+                <dt>缓存</dt>
+                <dd>--</dd>
+                <dt>抽取方法</dt>
+                <dd>--</dd>
+                <dt>技能数</dt>
+                <dd>--</dd>
+              </dl>
+            </article>
+          </section>
+
+          <article class="panel">
+            <div class="panel-heading">
+              <h2>关键词证据</h2>
+              <p>基于岗位需求与简历文本的交集和缺失项</p>
+            </div>
+            <div class="keyword-columns">
+              <div>
+                <h3>已匹配</h3>
+                <div id="matchedKeywords" class="tags"></div>
+              </div>
+              <div>
+                <h3>待确认</h3>
+                <div id="missingKeywords" class="tags"></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <h2>筛选建议</h2>
+            <ul id="recommendations" class="plain-list">
+              <li>上传简历并输入岗位需求后显示。</li>
+            </ul>
+          </article>
+
+          <article class="panel text-panel">
+            <div class="panel-heading">
+              <h2>解析文本</h2>
+              <p>用于人工复核抽取结果</p>
+            </div>
+            <pre id="cleanedText">--</pre>
+          </article>
+        </section>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
+

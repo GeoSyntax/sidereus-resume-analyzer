@@ -1,0 +1,2 @@
+"""Resume analyzer backend package."""
+
