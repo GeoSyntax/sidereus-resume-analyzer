@@ -8,7 +8,7 @@ from app.services.keywords import extract_keywords
 
 EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 PHONE_RE = re.compile(r"(?:(?:\+?86[-\s]?)?1[3-9]\d[-\s]?\d{4}[-\s]?\d{4})|(?:\d{3,4}[-\s]?\d{7,8})")
-NAME_LABEL_RE = re.compile(r"(?:姓名|Name)[:：\s]+([\u4e00-\u9fa5A-Za-z·.\s]{2,30})", re.IGNORECASE)
+NAME_LABEL_RE = re.compile(r"(?:姓名|Name)[:： \t　]*([\u4e00-\u9fa5A-Za-z·. \t　]{2,30})", re.IGNORECASE)
 SALARY_RE = re.compile(r"(?:期望薪资|薪资要求|Expected Salary)[:：\s]*([0-9kK+\-~至万/月年税前后\s]+)")
 ROLE_RE = re.compile(r"(?:求职意向|目标岗位|应聘岗位|意向岗位|Position)[:：\s]*([^\n]{2,60})", re.IGNORECASE)
 YEAR_RE = re.compile(
