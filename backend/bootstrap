@@ -1,5 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-python -m uvicorn app.main:app --host 0.0.0.0 --port "${FC_SERVER_PORT:-9000}"
+# Aliyun FC custom.debian10 ships Python 3.10 under /var/fc/lang/python3.10.
+# The default `python` on that image is Python 2.7, so we must call 3.10 explicitly.
+export PATH="/var/fc/lang/python3.10/bin:${PATH}"
 
+if command -v python3.10 >/dev/null 2>&1; then
+  PY=python3.10
+elif command -v python3 >/dev/null 2>&1; then
+  PY=python3
+else
+  PY=python
+fi
+
+exec "$PY" -m uvicorn app.main:app --host 0.0.0.0 --port "${FC_SERVER_PORT:-9000}"

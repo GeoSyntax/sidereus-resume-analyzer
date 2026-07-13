@@ -6,6 +6,13 @@ GitHub 仓库：https://github.com/GeoSyntax/sidereus-resume-analyzer
 
 前端演示：https://geosyntax.github.io/sidereus-resume-analyzer/
 
+后端 API（阿里云函数计算 FC）：https://resume-yzer-api-qfiqdkwrkd.cn-hangzhou.fcapp.run
+
+- 健康检查：https://resume-yzer-api-qfiqdkwrkd.cn-hangzhou.fcapp.run/health
+- 能力清单：https://resume-yzer-api-qfiqdkwrkd.cn-hangzhou.fcapp.run/api/v1/capabilities
+
+前端页面在 GitHub Pages 域名下会自动指向该后端地址，评审无需手动配置即可上传 PDF 验收。
+
 ## 功能
 
 - 上传单个 PDF 简历，解析多页文本并清洗分段
@@ -20,7 +27,7 @@ GitHub 仓库：https://github.com/GeoSyntax/sidereus-resume-analyzer
 
 ## 技术栈
 
-- 后端：Python 3.11、FastAPI、Pydantic、pypdf、httpx
+- 后端：Python（本地 3.10+ 开发，线上运行于阿里云 FC `custom.debian10` 内置的 Python 3.10）、FastAPI、Pydantic、pypdf、httpx
 - 缓存：Redis 可选，内存缓存兜底
 - AI：OpenAI Chat Completions 兼容接口可选
 - 前端：原生 HTML/CSS/JavaScript，适合 GitHub Pages 静态部署

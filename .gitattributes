@@ -1,0 +1,6 @@
+# Shell scripts and the FC bootstrap must stay LF. The Aliyun FC Linux runtime
+# executes `bootstrap` via `#!/usr/bin/env bash`; a CRLF line ending would make
+# the kernel look for an interpreter named `bash\r` and the instance would fail
+# to start. Force LF regardless of the committer's core.autocrlf setting.
+*.sh text eol=lf
+backend/bootstrap text eol=lf

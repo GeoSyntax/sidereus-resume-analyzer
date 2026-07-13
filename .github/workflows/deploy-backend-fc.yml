@@ -16,7 +16,9 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          # Must match the Aliyun FC custom.debian10 runtime (CPython 3.10),
+          # so native wheels (pydantic-core, httptools, ...) match its ABI.
+          python-version: "3.10"
 
       - name: Set up Node.js
         uses: actions/setup-node@v4

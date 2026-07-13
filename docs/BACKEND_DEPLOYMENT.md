@@ -17,7 +17,8 @@
 本项目使用 FastAPI + Uvicorn。阿里云 FC Custom Runtime 会在代码包根目录寻找 `bootstrap` 启动脚本。`backend/bootstrap` 会执行：
 
 ```bash
-python -m uvicorn app.main:app --host 0.0.0.0 --port "${FC_SERVER_PORT:-9000}"
+export PATH="/var/fc/lang/python3.10/bin:${PATH}"
+exec python3.10 -m uvicorn app.main:app --host 0.0.0.0 --port "${FC_SERVER_PORT:-9000}"
 ```
 
 关键点：
@@ -26,6 +27,22 @@ python -m uvicorn app.main:app --host 0.0.0.0 --port "${FC_SERVER_PORT:-9000}"
 - Custom Runtime 默认端口是 `9000`。
 - 依赖需要和代码一起打包到 `dist/fc-backend`。
 - `serverless/s.yaml` 的 `code` 指向 `../dist/fc-backend`。
+
+### 运行时 Python 版本（重要）
+
+`custom.debian10` 内置 **Python 3.10**（位于 `/var/fc/lang/python3.10/bin`），而镜像默认的 `python` 指向 Python 2.7。因此 `bootstrap` 必须显式调用 `python3.10`，直接写 `python` 会启动到 2.7 并崩溃。
+
+由此带来两个必须满足的约束：
+
+- **依赖 wheel 必须是 cp310/manylinux 版本**。`pydantic-core`、`httptools`、`watchfiles`、`websockets`、`PyYAML` 等是编译型扩展，ABI 与解释器版本绑定，用 3.11/3.12 编译的包在 3.10 运行时无法 `import`。
+- **在非 3.10 宿主上构建时，需要手动补齐 `python_version < "3.11"` 的 backport 依赖**（如 `exceptiongroup`、`async-timeout`）。pip 交叉下载会按宿主 Python 版本求值环境标记，从而漏掉这些包。`scripts/build_fc_package.ps1` 已处理这一情况；在真实 Linux 3.10 环境（GitHub Actions）构建则会自动包含。
+
+### s.yaml 关键字段
+
+新版 fc3 组件要求显式声明以下字段，否则部署报错：
+
+- `cpu`：vCPU 数，需与 `memorySize` 匹配（内存/CPU 比例在 1024~4096 MB/vCPU 之间）。本项目为 `512MB` + `0.35 vCPU`。
+- `internetAccess: true`：开启公网访问，否则报 `no public network configed`。
 
 ## 方式一：本地手动部署
 
@@ -54,16 +71,28 @@ s config add
 
 ### 3. 构建 FC 代码包
 
-Windows PowerShell：
+阿里云 FC `custom.debian10` 运行时内置的是 **CPython 3.10**（位于 `/var/fc/lang/python3.10`，镜像默认 `python` 是 Python 2.7）。Python 依赖中包含 `pydantic-core`、`httptools`、`watchfiles` 等平台相关的编译 wheel，其 ABI 与解释器版本绑定，所以部署包里的原生扩展**必须是 cp310 的 Linux wheel**，否则函数实例启动时会 `ModuleNotFoundError` 或加载 `.so` 失败。
+
+三种构建方式都会产出正确的 cp310 包：
+
+GitHub Actions 或 Linux（在 Python 3.10 环境下原生安装）：
+
+```bash
+bash scripts/build_fc_package.sh
+```
+
+Windows（用 pip 交叉下载 cp310 manylinux wheel，无需本地装 Python 3.10）：
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/build_fc_package.ps1
 ```
 
-macOS/Linux/Git Bash：
+`build_fc_package.ps1` 使用 `pip --python-version 3.10 --abi cp310 --platform manylinux... --only-binary=:all:` 交叉下载目标平台 wheel。注意：pip 会按**宿主机 Python 版本**求值依赖的环境标记（如 `exceptiongroup; python_version < "3.11"`），因此脚本会显式补装这些 <3.11 才需要的 backport 包。
 
-```bash
-bash scripts/build_fc_package.sh
+Windows 使用 Docker 构建 Linux 依赖（注意镜像必须是 `python:3.10`，不能用 3.11）：
+
+```powershell
+docker run --rm -v "${PWD}:/workspace" -w /workspace python:3.10 bash scripts/build_fc_package.sh
 ```
 
 生成目录：
@@ -87,11 +116,17 @@ s deploy -y
 
 ### 5. 验证
 
-假设公网地址是 `https://xxx.cn-hangzhou.fcapp.run`：
+本项目已部署，公网地址为 `https://resume-yzer-api-qfiqdkwrkd.cn-hangzhou.fcapp.run`：
 
 ```bash
-curl https://xxx.cn-hangzhou.fcapp.run/health
-curl https://xxx.cn-hangzhou.fcapp.run/api/v1/capabilities
+curl https://resume-yzer-api-qfiqdkwrkd.cn-hangzhou.fcapp.run/health
+curl https://resume-yzer-api-qfiqdkwrkd.cn-hangzhou.fcapp.run/api/v1/capabilities
+```
+
+`/health` 正常返回：
+
+```json
+{"status":"ok","llm_enabled":false,"cache":"memory"}
 ```
 
 然后打开 GitHub Pages：
@@ -100,7 +135,7 @@ curl https://xxx.cn-hangzhou.fcapp.run/api/v1/capabilities
 https://geosyntax.github.io/sidereus-resume-analyzer/
 ```
 
-把页面右上角 `API Base` 改成 FC 公网地址，再上传 PDF 测试。
+前端会在 GitHub Pages 域名下自动把 `API Base` 指向上面的 FC 地址，直接上传 PDF 即可测试。本地开发时默认回落到 `http://127.0.0.1:8000`。
 
 ## 方式二：GitHub Actions 部署
 
@@ -206,4 +241,3 @@ OPENAI_MODEL
 ```
 
 不配置 `OPENAI_API_KEY` 时，系统会自动使用规则抽取和规则评分，不影响基础功能。
-

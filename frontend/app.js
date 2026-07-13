@@ -30,9 +30,18 @@ const elements = {
   cleanedText: document.querySelector("#cleanedText"),
 };
 
+// Deployed backend on Aliyun Function Compute (custom.debian10 runtime).
+const PRODUCTION_API_BASE = "https://resume-yzer-api-qfiqdkwrkd.cn-hangzhou.fcapp.run";
+
+// Pick a sensible default so the page works out of the box:
+// - a value the user previously saved always wins;
+// - when served from a real host (e.g. GitHub Pages), point at the FC backend;
+// - only fall back to localhost when developing locally.
 const storedApiBase = localStorage.getItem("resumeAnalyzerApiBase");
 if (storedApiBase) {
   elements.apiBase.value = storedApiBase;
+} else if (location.hostname && location.hostname !== "localhost" && location.hostname !== "127.0.0.1") {
+  elements.apiBase.value = PRODUCTION_API_BASE;
 }
 
 elements.apiBase.addEventListener("change", () => {
