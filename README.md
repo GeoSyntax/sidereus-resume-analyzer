@@ -2,6 +2,10 @@
 
 AI 赋能的智能简历分析系统，面向 Sidereus AI Python 后端/全栈实习生笔试题实现。项目提供 PDF 简历上传解析、关键信息抽取、岗位关键词分析、匹配度评分、缓存和静态前端页面。
 
+GitHub 仓库：https://github.com/GeoSyntax/sidereus-resume-analyzer
+
+前端演示：https://geosyntax.github.io/sidereus-resume-analyzer/
+
 ## 功能
 
 - 上传单个 PDF 简历，解析多页文本并清洗分段
@@ -192,7 +196,7 @@ s deploy
 提交给 Boss 直聘面试官时可使用：
 
 ```text
-GitHub 仓库地址：<你的公开仓库地址>
-线上演示地址：<GitHub Pages 或其他部署地址>
+GitHub 仓库地址：https://github.com/GeoSyntax/sidereus-resume-analyzer
+线上演示地址：https://geosyntax.github.io/sidereus-resume-analyzer/
 姓名与联系方式：<你的姓名 / 手机 / 邮箱>
 ```
