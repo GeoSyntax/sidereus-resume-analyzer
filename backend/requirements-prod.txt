@@ -6,4 +6,6 @@ email-validator>=2.1.0
 pypdf>=4.2.0
 httpx>=0.27.0
 redis>=5.0.0
+# OCR for scanned/image-only PDFs: renders pages to images (cp39-abi3 wheel, ~20 MB).
+PyMuPDF>=1.24.0
 

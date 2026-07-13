@@ -43,6 +43,9 @@ class ParsedResume(BaseModel):
     cleaned_text: str
     sections: list[str] = Field(default_factory=list)
     profile: ResumeProfile
+    # How the text was obtained: "text" for a normal text-layer PDF, "ocr" for a
+    # scanned/image PDF recovered via the vision model.
+    source: str = "text"
     cached: bool = False
 
 
@@ -73,6 +76,16 @@ class MatchResult(BaseModel):
     recommendations: list[str] = Field(default_factory=list)
     scoring_method: str = "rules"
     cached: bool = False
+
+
+class AnalyzeResult(BaseModel):
+    """Combined response for the stateless one-shot analyze endpoint.
+
+    ``match`` is null when no job description was supplied (parse-only mode).
+    """
+
+    resume: ParsedResume
+    match: MatchResult | None = None
 
 
 class ErrorResponse(BaseModel):

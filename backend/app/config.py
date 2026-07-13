@@ -13,6 +13,15 @@ class Settings(BaseSettings):
     openai_api_key: str | None = None
     openai_base_url: str = "https://api.openai.com/v1"
     openai_model: str = "gpt-4o-mini"
+    # A vision-capable model on the same OpenAI-compatible endpoint. Used to OCR
+    # scanned/image-only PDFs. If unset or equal to openai_model, OCR is disabled
+    # unless the primary model itself accepts image input.
+    openai_vision_model: str | None = None
+    # Render scanned pages at this DPI before sending to the vision model. Higher
+    # is more accurate but larger payloads; 150 is a good balance for resumes.
+    ocr_dpi: int = 150
+    # Cap how many pages we OCR to bound latency and token cost on long scans.
+    ocr_max_pages: int = 5
 
     redis_url: str | None = None
 
@@ -30,6 +39,16 @@ class Settings(BaseSettings):
     @property
     def llm_enabled(self) -> bool:
         return bool(self.openai_api_key)
+
+    @property
+    def ocr_model(self) -> str | None:
+        """The model used to OCR scanned pages, if any is configured."""
+        return self.openai_vision_model or None
+
+    @property
+    def ocr_enabled(self) -> bool:
+        """OCR needs both an API key and a vision-capable model."""
+        return bool(self.openai_api_key and self.ocr_model)
 
 
 @lru_cache
