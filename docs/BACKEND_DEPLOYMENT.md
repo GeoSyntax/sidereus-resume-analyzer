@@ -123,11 +123,13 @@ curl https://resume-yzer-api-qfiqdkwrkd.cn-hangzhou.fcapp.run/health
 curl https://resume-yzer-api-qfiqdkwrkd.cn-hangzhou.fcapp.run/api/v1/capabilities
 ```
 
-`/health` 正常返回：
+`/health` 正常返回（生产已启用 LLM、OCR 和 Redis 缓存）：
 
 ```json
-{"status":"ok","llm_enabled":false,"cache":"memory"}
+{"status":"ok","llm_enabled":true,"ocr_enabled":true,"cache":"redis"}
 ```
+
+其中 `cache` 反映**真实连接状态**：仅当 Redis 连接建立且 `ping()` 成功才报 `redis`，否则回退内存并如实报 `memory`。
 
 然后打开 GitHub Pages：
 

@@ -11,9 +11,10 @@
 | 文本清洗分段 | `text_cleaner.py` | 去控制字符、页码噪声、重复空行，按段落切分 |
 | 基本信息抽取 | `extractor.py` | 姓名、电话、邮箱、地址规则抽取，LLM 可选增强 |
 | 岗位需求分析 | `POST /api/v1/jobs/analyze` | 独立返回岗位关键词、学历和资历提示 |
-| 匹配评分 | `POST /api/v1/resumes/{resume_id}/matches` | 技能、经验、学历三项加权 |
+| 匹配评分（主流程） | `POST /api/v1/analyze` | 无状态单请求完成解析+匹配，前端默认，适配 Serverless 多实例 |
+| 匹配评分（兼容） | `POST /api/v1/resumes/{resume_id}/matches` | 有状态两步流程第二步；技能、经验、学历三项加权 |
 | JSON 返回 | `models.py` | Pydantic response model 保证结构 |
-| 缓存 | `cache.py` | Redis 可选，内存缓存兜底 |
+| 缓存 | `cache.py` | 生产已接入 Redis（Upstash，TLS）；`/health` 反映真实连接状态，未配置时回退内存 |
 | 前端页面 | `frontend/` | GitHub Pages 已部署，支持真实 API 和示例模式 |
 
 ## 代码质量 25%
