@@ -26,25 +26,26 @@
         <form id="analyzeForm" class="panel controls">
           <div class="control-section">
             <div class="section-title">简历文件</div>
-            <label class="field">
-              <span>上传 PDF</span>
+            <label id="dropZone" class="dropzone" for="resumeFile">
               <input id="resumeFile" type="file" accept="application/pdf,.pdf" required />
+              <span class="dropzone-primary">拖拽 PDF 到此处，或点击选择</span>
+              <span id="fileMeta" class="dropzone-meta">尚未选择文件</span>
             </label>
-            <div id="fileMeta" class="meta-line">尚未选择文件</div>
           </div>
 
           <div class="control-section">
-            <div class="section-title">岗位需求</div>
+            <div class="section-row">
+              <div class="section-title">岗位需求</div>
+              <button id="sampleJobButton" type="button" class="link-button">填入示例 JD</button>
+            </div>
             <label class="field">
-              <span>JD 文本</span>
               <textarea
                 id="jobDescription"
-                rows="12"
-                required
+                rows="10"
                 placeholder="Python 后端/全栈实习生，熟悉 FastAPI、Redis、RESTful API，有 Serverless 或云部署经验..."
               ></textarea>
             </label>
-            <div id="jobMeta" class="meta-line">至少输入 10 个字符</div>
+            <div id="jobMeta" class="meta-line">至少输入 10 个字符（仅匹配时需要）</div>
           </div>
 
           <div class="button-row">
@@ -53,7 +54,10 @@
             <button id="demoButton" type="button">加载示例</button>
           </div>
 
-          <div id="status" class="status" role="status">等待上传</div>
+          <div id="status" class="status" role="status" aria-live="polite">
+            <span id="statusText">等待上传</span>
+            <span id="statusSpinner" class="spinner" hidden aria-hidden="true"></span>
+          </div>
         </form>
 
         <section class="results" aria-label="分析结果">
@@ -116,15 +120,20 @@
               <dl id="resumeSummary" class="profile-list compact">
                 <dt>页数</dt>
                 <dd>--</dd>
+                <dt>文本来源</dt>
+                <dd>--</dd>
                 <dt>缓存</dt>
                 <dd>--</dd>
                 <dt>抽取方法</dt>
                 <dd>--</dd>
-                <dt>技能数</dt>
-                <dd>--</dd>
               </dl>
             </article>
           </section>
+
+          <article id="projectsPanel" class="panel" hidden>
+            <h2>项目经历</h2>
+            <div id="projectList" class="project-list"></div>
+          </article>
 
           <article class="panel">
             <div class="panel-heading">
@@ -132,6 +141,10 @@
               <p>基于岗位需求与简历文本的交集和缺失项</p>
             </div>
             <div class="keyword-columns">
+              <div>
+                <h3>岗位关键词</h3>
+                <div id="jobKeywords" class="tags"></div>
+              </div>
               <div>
                 <h3>已匹配</h3>
                 <div id="matchedKeywords" class="tags"></div>
@@ -152,7 +165,10 @@
 
           <article class="panel text-panel">
             <div class="panel-heading">
-              <h2>解析文本</h2>
+              <div class="section-row">
+                <h2>解析文本</h2>
+                <button id="copyJsonButton" type="button" class="link-button" hidden>复制结果 JSON</button>
+              </div>
               <p>用于人工复核抽取结果</p>
             </div>
             <pre id="cleanedText">--</pre>

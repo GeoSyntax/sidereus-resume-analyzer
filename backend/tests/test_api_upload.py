@@ -136,3 +136,50 @@ def test_match_missing_resume_returns_404():
     )
 
     assert response.status_code == 404
+
+
+def test_stateless_analyze_short_job_returns_422(text_pdf_bytes):
+    """A non-empty job_description under 10 chars is a client error, not a
+    silent parse-only. Regression guard for the Form() field boundary."""
+    response = client.post(
+        "/api/v1/analyze",
+        files={"file": ("resume.pdf", io.BytesIO(text_pdf_bytes), "application/pdf")},
+        data={"job_description": "too short"},
+    )
+
+    assert response.status_code == 422
+
+
+def test_stateless_analyze_blank_job_is_parse_only(text_pdf_bytes):
+    """Whitespace-only job_description is treated as "no job": parse succeeds and
+    match stays None rather than raising."""
+    response = client.post(
+        "/api/v1/analyze",
+        files={"file": ("resume.pdf", io.BytesIO(text_pdf_bytes), "application/pdf")},
+        data={"job_description": "   \n  "},
+    )
+
+    assert response.status_code == 201
+    assert response.json()["match"] is None
+
+
+def test_stateless_analyze_collects_multipage_text(multipage_pdf_bytes):
+    """The stateless path must read every page, same as /resumes."""
+    response = client.post(
+        "/api/v1/analyze",
+        files={"file": ("resume.pdf", io.BytesIO(multipage_pdf_bytes), "application/pdf")},
+    )
+
+    assert response.status_code == 201
+    payload = response.json()
+    assert payload["resume"]["page_count"] == 2
+    assert "FastAPI" in payload["resume"]["cleaned_text"]
+
+
+def test_stateless_analyze_rejects_non_pdf(not_a_pdf_bytes):
+    response = client.post(
+        "/api/v1/analyze",
+        files={"file": ("resume.pdf", io.BytesIO(not_a_pdf_bytes), "application/pdf")},
+    )
+
+    assert response.status_code == 422
