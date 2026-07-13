@@ -11,6 +11,17 @@ class CacheClient:
         self._memory: dict[str, tuple[float, dict[str, Any]]] = {}
         self._redis = self._build_redis()
 
+    @property
+    def backend(self) -> str:
+        """The cache backend actually in use.
+
+        Reports "redis" only when a Redis connection was established and its
+        ping succeeded. If REDIS_URL is set but the connection failed (wrong
+        scheme, network, auth), we silently fall back to memory and report
+        "memory" here so /health reflects reality rather than intent.
+        """
+        return "redis" if self._redis else "memory"
+
     def get(self, key: str) -> dict[str, Any] | None:
         if self._redis:
             try:
@@ -32,7 +43,7 @@ class CacheClient:
         ttl = ttl or self.ttl
         if self._redis:
             try:
-                self._redis.setex(key, ttl, json.dumps(value, ensure_ascii=False))
+                self._redis.set(key, json.dumps(value, ensure_ascii=False), ex=ttl)
                 return
             except Exception:
                 pass

@@ -159,7 +159,7 @@ async def health() -> dict[str, object]:
         "status": "ok",
         "llm_enabled": settings.llm_enabled,
         "ocr_enabled": settings.ocr_enabled,
-        "cache": "redis" if settings.redis_url else "memory",
+        "cache": cache.backend,
     }
 
 
@@ -169,7 +169,7 @@ async def capabilities() -> dict[str, object]:
         "pdf": {"single_upload": True, "multi_page": True, "ocr": settings.ocr_enabled, "max_upload_mb": settings.max_upload_mb},
         "extraction": {"rules": True, "llm_enabled": settings.llm_enabled},
         "matching": {"rules": True, "llm_enhanced": settings.llm_enabled},
-        "cache": "redis" if settings.redis_url else "memory",
+        "cache": cache.backend,
         "deployment": "FastAPI ASGI, compatible with Aliyun FC custom runtime",
     }
 

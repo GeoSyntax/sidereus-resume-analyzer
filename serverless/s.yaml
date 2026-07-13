@@ -33,6 +33,10 @@ resources:
         OPENAI_VISION_MODEL: mimo-v2.5
         # OPENAI_API_KEY is a secret: injected from the local env at deploy time, never committed.
         OPENAI_API_KEY: ${env('OPENAI_API_KEY')}
+        # REDIS_URL is a secret (contains the password): injected at deploy time, never committed.
+        # Must use the rediss:// scheme so redis-py enables TLS (Upstash requires it);
+        # a plain redis:// URL fails to connect and silently falls back to memory.
+        REDIS_URL: ${env('REDIS_URL')}
       triggers:
         - triggerName: httpTrigger
           triggerType: http
